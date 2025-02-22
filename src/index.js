@@ -1,6 +1,5 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
-const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -8,7 +7,7 @@ const port = process.env.PORT || 3000;
 app.get('/', async (req, res) => {
   try {
     const browser = await puppeteer.launch({
-      executablePath: '/usr/bin/chromium-browser',
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
       args: [
         '--no-sandbox',
         '--headless',
@@ -26,11 +25,10 @@ app.get('/', async (req, res) => {
       waitUntil: 'networkidle0'
     });
 
-    const screenshotPath = path.join(__dirname, '../screenshots/zerops.png');
-    await page.screenshot({ path: screenshotPath });
+    const screenshot = await page.screenshot();
     await browser.close();
 
-    res.sendFile(screenshotPath);
+    res.type('png').send(screenshot);
   } catch (error) {
     console.error('Screenshot error:', error);
     res.status(500).json({ error: 'Failed to take screenshot' });
