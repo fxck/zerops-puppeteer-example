@@ -1,0 +1,21 @@
+zerops:
+  - setup: app
+    build:
+      base: nodejs@22
+      envVariables:
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+      buildCommands:
+        - npm ci
+      deployFiles:
+        - ./
+    run:
+      base: nodejs@22
+      prepareCommands:
+        - apk add --update-cache chromium
+      envVariables:
+        NODE_ENV: production
+        PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
+      ports:
+        - port: 3000
+          httpSupport: true
+      start: node src/index.js
